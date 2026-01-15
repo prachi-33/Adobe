@@ -1,0 +1,314 @@
+.container {
+    padding: 20px;
+    max-width: 100%;
+    font-family: 'Adobe Clean', sans-serif;
+}
+
+.header {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #2c2c2c;
+}
+
+.header p {
+    font-size: 14px;
+    color: #6e6e6e;
+    margin: 0;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.tier-selector {
+    width: 100%;
+    max-width: 500px;
+}
+
+.tier-options {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.tier-btn {
+    flex: 1;
+    background: white;
+    border: 2px solid #e1e1e1;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #4b4b4b;
+}
+
+.tier-btn:hover {
+    border-color: #1473e6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(20, 115, 230, 0.15);
+}
+
+.tier-btn.active {
+    background: linear-gradient(135deg, #1473e6 0%, #0d66d0 100%);
+    border-color: #1473e6;
+    color: white;
+}
+
+.tier-desc {
+    font-size: 11px;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.paywall-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.paywall-content {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.paywall-content h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    color: #2c2c2c;
+    text-align: center;
+}
+
+.paywall-content p {
+    font-size: 14px;
+    color: #4b4b4b;
+    margin: 0 0 12px 0;
+    text-align: center;
+}
+
+.paywall-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+}
+
+.paywall-content li {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #2c2c2c;
+}
+
+.paywall-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.paywall-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.paywall-btn.primary {
+    background: linear-gradient(135deg, #1473e6 0%, #0d66d0 100%);
+    color: white;
+}
+
+.paywall-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(20, 115, 230, 0.3);
+}
+
+.paywall-btn.secondary {
+    background: transparent;
+    color: #4b4b4b;
+    border: 2px solid #e1e1e1;
+}
+
+.paywall-btn.secondary:hover {
+    border-color: #4b4b4b;
+}
+
+.error-banner {
+    background-color: #ffebe9;
+    border: 1px solid #ff5247;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    color: #d7373f;
+}
+
+.error-banner strong {
+    font-weight: 600;
+}
+
+.code-output {
+    margin-top: 20px;
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 0 4px;
+}
+
+.view-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: 2px solid #e1e1e1;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #4b4b4b;
+}
+
+.tab-btn:hover {
+    border-color: #1473e6;
+    color: #1473e6;
+}
+
+.tab-btn.active {
+    background: #1473e6;
+    border-color: #1473e6;
+    color: white;
+}
+
+.code-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    color: #2c2c2c;
+}
+
+.copy-btn {
+    background: #1473e6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.copy-btn:hover {
+    background: #0d66d0;
+}
+
+.copy-btn:active {
+    background: #095aba;
+}
+
+.instructions {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.instructions h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: #2c2c2c;
+}
+
+.instructions ol {
+    margin: 0;
+    padding-left: 20px;
+    color: #4b4b4b;
+}
+
+.instructions li {
+    margin-bottom: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Syntax highlighter container */
+:global(.react-syntax-highlighter-line-number) {
+    min-width: 2.5em;
+}
+
+.preview-container {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 8px;
+    min-height: 500px;
+}
+
+.preview-iframe {
+    width: 100%;
+    height: 500px;
+    border: none;
+    border-radius: 6px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
