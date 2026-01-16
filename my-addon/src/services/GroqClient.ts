@@ -370,81 +370,32 @@ Return ONLY the JSON array, no markdown formatting or additional text.`;
         ? `\n- Layout Patterns: ${brandGuidelines.layoutPatterns.join(', ')}`
         : '';
 
-      const prompt = `You are an expert design auditor analyzing a design against specific brand guidelines. Be EXTREMELY STRICT and uncompromising in your evaluation. This is a professional brand compliance audit - no excuses accepted. Provide all feedback in ${responseLang}.
+      const prompt = `Analyze this design image against the brand guidelines below. Provide an objective assessment in ${responseLang}.
 
-${brandGuidelines.websiteScreenshot ? '**CRITICAL**: Use the brand website screenshot (second image) as your PRIMARY visual reference for brand consistency. The design MUST match this exactly.\n\n' : ''}**BRAND GUIDELINES** (design MUST follow these EXACTLY - ZERO TOLERANCE):
+BRAND REQUIREMENTS:
+- Colors: ${brandGuidelines.primaryColors.join(', ')}
+- Voice: ${brandGuidelines.brandVoice}
+- Guidelines: ${brandGuidelines.designGuidelines.join(' | ')}${typographyInfo}${spacingInfo}${layoutInfo}
 
-**MANDATORY Colors**: ${brandGuidelines.primaryColors.join(', ')} - NO OTHER COLORS ALLOWED
-**MANDATORY Brand Voice**: ${brandGuidelines.brandVoice} - Must be reflected in ALL design elements
-**MANDATORY Design Principles**: ${brandGuidelines.designGuidelines.join(' | ')} - Every principle must be visibly implemented${typographyInfo}${spacingInfo}${layoutInfo}
+${brandGuidelines.websiteScreenshot ? 'Use the second image (brand website) as visual reference for brand consistency.\n\n' : ''}RATE THIS DESIGN (0-100 scale):
 
-**STRICT ANALYSIS FRAMEWORK** (FAILURE = 0 POINTS):
+1. Color Consistency: How well does the design use the required brand colors?
+2. Typography: Does it use appropriate fonts and text hierarchy?
+3. Spacing: Is the spacing consistent and well-structured?
+4. Accessibility: Are contrast, text size, and usability standards met?
+5. Overall Brand Alignment: How well does this represent the brand?
 
-1. **Color Consistency (0-100)**:
-   - IDENTIFY EVERY SINGLE COLOR in the design
-   - COMPARE to EXACT brand palette: ${brandGuidelines.primaryColors.join(', ')}
-   - Score: 100 ONLY if ALL colors are from brand palette, 0 if ANY non-brand color exists
-   - -50 points for each unauthorized color used
-   - -25 points for incorrect color proportions or hierarchy
-   - ZERO TOLERANCE: Any color not in brand palette = AUTOMATIC FAIL
+SCORING: Be critical but fair. Empty designs score 0-20. Perfect brand alignment scores 90-100.
 
-2. **Typography Scale (0-100)**:
-   - Fonts MUST be: ${brandGuidelines.typography?.primaryFont || 'brand fonts ONLY'}
-   - Weights MUST be: ${brandGuidelines.typography?.fontWeights?.join(', ') || '400, 600, 700 ONLY'}
-   - Score: 0 if ANY wrong font or weight is used
-   - -40 points for wrong fonts, -30 for wrong weights
-   - -20 points for poor hierarchy or readability
-   - PERFECT EXECUTION REQUIRED: Any deviation = FAIL
-
-3. **Spacing Rhythm (0-100)**:
-   - ALL spacing MUST follow ${brandGuidelines.spacing?.baseUnit || '8px'} EXACTLY
-   - Scale MUST be ${brandGuidelines.spacing?.scale || '1.5x'} PERFECTLY
-   - Score: 0 if ANY inconsistent spacing found
-   - -35 points for each spacing inconsistency
-   - -25 points for no clear mathematical system
-   - PIXEL-PERFECT COMPLIANCE REQUIRED
-
-4. **Accessibility (0-100)**:
-   - CONTRAST: Minimum 4.5:1 for AA compliance (7:1 for AAA)
-   - TEXT SIZE: Minimum 16px body, 14px minimum absolute
-   - TOUCH TARGETS: Minimum 44px for mobile, 24px desktop
-   - Score: 0 for ANY accessibility violation
-   - -50 points for poor contrast, -40 for small text, -30 for inadequate touch targets
-   - WCAG COMPLIANCE IS MANDATORY
-
-5. **Layout Consistency (CRITICAL)**:
-   - Layout MUST follow: ${brandGuidelines.layoutPatterns?.join(', ') || 'brand patterns EXACTLY'}
-   - Grid alignment must be PERFECT
-   - Visual balance and white space must be EXACT
-   - ANY deviation from brand layout = MAJOR PENALTY
-
-**ULTRA-STRICT SCORING GUIDELINES** (NO MERCY):
-- 95-100: FLAWLESS - Perfect pixel-level brand compliance, professional masterpiece
-- 85-94: EXCELLENT - Minor imperfections only, still brand-compliant
-- 75-84: GOOD - Strong compliance but needs refinement
-- 60-74: POOR - Multiple issues, requires significant rework
-- 40-59: FAILING - Major brand violations, unacceptable
-- 0-39: COMPLETE FAILURE - Does not represent the brand, start over
-
-**PENALTIES FOR VIOLATIONS**:
-- Wrong color: -50 points minimum
-- Wrong font: -40 points minimum
-- Inconsistent spacing: -35 points minimum
-- Poor accessibility: -50 points minimum
-- Layout violations: -45 points minimum
-- Multiple violations: COMPOUNDING penalties
-
-Be BRUTALLY HONEST: List EVERY violation, no matter how small. Be SPECIFIC: mention exact hex codes, pixel measurements, font names, spacing values.
-
-Return ONLY valid JSON (no markdown, no explanations):
+Return ONLY valid JSON:
 {
-  "score": overall_score_0_100,
-  "colorConsistency": score_0_100,
-  "typographyScale": score_0_100,
-  "spacingRhythm": score_0_100,
-  "accessibility": score_0_100,
-  "feedback": ["CRITICAL ISSUE: Specific violation details", "MAJOR ISSUE: Exact problem description", "MINOR ISSUE: Detailed observation"],
-  "recommendations": ["IMMEDIATE FIX: Actionable correction", "REQUIRED CHANGE: Specific improvement", "MANDATORY UPDATE: Compliance requirement"]
+  "score": 0-100,
+  "colorConsistency": 0-100,
+  "typographyScale": 0-100,
+  "spacingRhythm": 0-100,
+  "accessibility": 0-100,
+  "feedback": ["3-5 specific observations"],
+  "recommendations": ["3-5 actionable suggestions"]
 }`;
 
       const contentParts: any[] = [
@@ -474,7 +425,7 @@ Return ONLY valid JSON (no markdown, no explanations):
         messages: [
           {
             role: 'system',
-            content: 'You are an uncompromising professional design auditor conducting a BRAND COMPLIANCE AUDIT. Be EXTREMELY STRICT - ZERO TOLERANCE for brand violations. Analyze designs with military precision against brand guidelines. Return only valid JSON with BRUTALLY HONEST, specific, actionable feedback. NO EXCUSES ACCEPTED.'
+            content: 'You are a professional design auditor conducting thorough brand compliance reviews. Analyze designs objectively against brand guidelines. Provide specific, actionable feedback. Be fair but firm in your assessments.'
           },
           {
             role: 'user',

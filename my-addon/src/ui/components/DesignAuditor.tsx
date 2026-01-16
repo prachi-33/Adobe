@@ -123,11 +123,22 @@ const DesignAuditor: React.FC = () => {
     setError(null);
 
     try {
-      // Create rendition of current page
-      const renditions = await addOnUISdk.app.document.createRenditions({
-        range: addOnUISdk.constants.Range.currentPage,
-        format: addOnUISdk.constants.RenditionFormat.png,
-      });
+      // Create a fresh rendition of current page with multiple unique parameters to force regeneration
+      const timestamp = Date.now(); // Add timestamp for uniqueness
+      const uniqueId = timestamp % 100; // Unique identifier 0-99
+
+      const renditions = await addOnUISdk.app.document.createRenditions(
+        {
+          range: addOnUISdk.constants.Range.currentPage,
+          format: addOnUISdk.constants.RenditionFormat.png,
+          requestedSize: {
+            width: 1024 + uniqueId,
+            height: 1024 + uniqueId
+          }, // Unique size variation
+          fileSizeLimit: 5000 + uniqueId, // Unique file size limit
+          fileSizeLimitUnit: addOnUISdk.constants.FileSizeLimitUnit.KB,
+        } as any // Cast to any to allow PNG-specific options
+      );
 
       if (renditions.length === 0) {
         throw new Error('No rendition created');
