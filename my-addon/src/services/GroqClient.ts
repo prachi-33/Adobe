@@ -38,9 +38,12 @@ class GroqClient {
   /**
    * Extract brand identity from website content
    */
-  async extractBrandIdentity(websiteContent: string): Promise<BrandData> {
+  async extractBrandIdentity(websiteContent: string, language: string = 'en'): Promise<BrandData> {
+    const languageNames: Record<string, string> = { en: 'English', es: 'Spanish', fr: 'French' };
+    const responseLang = languageNames[language] || 'English';
+    
     try {
-      const prompt = `Extract brand identity from website content. Return ONLY valid JSON, no markdown, no explanations.
+      const prompt = `Extract brand identity from website content. Return ONLY valid JSON, no markdown, no explanations. Provide all text fields (brandVoice, designGuidelines) in ${responseLang}.
 
 CONTENT:
 ${websiteContent.substring(0, 3000)}
@@ -131,10 +134,14 @@ Extract factually from content. No assumptions. If unclear, use conservative def
     trend: string,
     brandContext: BrandData,
     includeTrendySuggestions: boolean = false,
-    selectedEvents: string[] = []
+    selectedEvents: string[] = [],
+    language: string = 'en'
   ): Promise<string> {
+    const languageNames: Record<string, string> = { en: 'English', es: 'Spanish', fr: 'French' };
+    const responseLang = languageNames[language] || 'English';
+    
     try {
-      const prompt = `Create a concise Adobe Firefly prompt (max 100 words) for: ${trend}
+      const prompt = `Create a concise Adobe Firefly prompt (max 100 words) in ${responseLang} for: ${trend}
 
 Brand: ${brandContext.primaryColors.slice(0, 3).join(', ')} colors, ${brandContext.brandVoice.split('.')[0]}
 
@@ -162,7 +169,10 @@ Include: style, composition, lighting, mood, brand colors. Be specific and direc
   /**
    * Get AI-generated viral trends and festivals tailored to brand identity
    */
-  async getViralTrends(brandData?: BrandData): Promise<Array<{ id: string; name: string; desc: string }>> {
+  async getViralTrends(brandData?: BrandData, language: string = 'en'): Promise<Array<{ id: string; name: string; desc: string }>> {
+    const languageNames: Record<string, string> = { en: 'English', es: 'Spanish', fr: 'French' };
+    const responseLang = languageNames[language] || 'English';
+    
     try {
       const currentDate = new Date().toLocaleDateString('en-US', { 
         year: 'numeric', 
@@ -179,7 +189,7 @@ Brand Context to Consider:
 
 Tailor trend suggestions that align with this brand's identity, voice, and aesthetic preferences.` : '';
 
-      const prompt = `You are a design trend expert. Based on today's date (${currentDate}), suggest 8-12 trending design styles, viral content themes, and relevant upcoming festivals/events.${brandContext}
+      const prompt = `You are a design trend expert. Based on today's date (${currentDate}), suggest 8-12 trending design styles, viral content themes, and relevant upcoming festivals/events in ${responseLang}.${brandContext}
 
 Consider:
 - Current social media trends (TikTok, Instagram, etc.)
@@ -252,10 +262,13 @@ Return ONLY the JSON array, no markdown formatting or additional text.`;
    */
   async analyzeDesign(
     imageBase64: string,
-    brandGuidelines: BrandData
+    brandGuidelines: BrandData,
+    language: string = 'en'
   ): Promise<VisionAnalysis> {
+    const languageNames: Record<string, string> = { en: 'English', es: 'Spanish', fr: 'French' };
+    const responseLang = languageNames[language] || 'English';
     try {
-      const prompt = `You are a BRUTAL design critic with professional design standards. Analyze this design against brand guidelines with HARSH, UNFORGIVING criteria.
+      const prompt = `You are a BRUTAL design critic with professional design standards. Analyze this design against brand guidelines with HARSH, UNFORGIVING criteria. Provide all feedback in ${responseLang}.
 
 Brand Guidelines (MUST match exactly):
 - Primary Colors: ${brandGuidelines.primaryColors.join(', ')}

@@ -3,9 +3,11 @@ import { useBrand } from '../../context/BrandContext';
 import { groqClient, VisionAnalysis } from '../../services/GroqClient';
 import { Search, BarChart3, Lightbulb, Sparkles, Upload } from 'lucide-react';
 import { ProgressCircle } from './LoadingComponents';
-import addOnUISdk from "https://new.express.adobe.com/static/add-on-sdk/sdk.js";
+import addOnUISdk from "https://express.adobe.com/static/add-on-sdk/sdk.js";
+import { useLanguage } from '../../context/LanguageContext';
 
 const DesignAuditor: React.FC = () => {
+  const { t, language } = useLanguage();
   const { brandData, hasBrandData } = useBrand();
   const [auditing, setAuditing] = useState(false);
   const [analysis, setAnalysis] = useState<VisionAnalysis | null>(null);
@@ -13,7 +15,7 @@ const DesignAuditor: React.FC = () => {
 
   const runAudit = async () => {
     if (!hasBrandData) {
-      setError('Please extract brand data first in the Brand Brain tab!');
+      setError(t('extractFirst'));
       return;
     }
 
@@ -54,7 +56,7 @@ const DesignAuditor: React.FC = () => {
       }
 
       // Analyze with Groq Vision
-      const visionAnalysis = await groqClient.analyzeDesign(base64, brandData);
+      const visionAnalysis = await groqClient.analyzeDesign(base64, brandData, language);
       
       // Validate analysis returned
       if (!visionAnalysis) {
@@ -102,10 +104,10 @@ const DesignAuditor: React.FC = () => {
 
   const metrics = analysis
     ? [
-        { label: 'Color Consistency', score: analysis.colorConsistency },
-        { label: 'Typography Scale', score: analysis.typographyScale },
-        { label: 'Spacing Rhythm', score: analysis.spacingRhythm },
-        { label: 'Accessibility', score: analysis.accessibility },
+        { label: t('colorConsistency'), score: analysis.colorConsistency },
+        { label: t('typographyScale'), score: analysis.typographyScale },
+        { label: t('spacingRhythm'), score: analysis.spacingRhythm },
+        { label: t('accessibility'), score: analysis.accessibility },
       ]
     : [];
 
@@ -144,7 +146,7 @@ const DesignAuditor: React.FC = () => {
           <h3 className="spectrum-heading-m" style={{ 
             margin: '0 0 var(--spectrum-spacing-200) 0'
           }}>
-            Auditing Against Your Brand:
+            {t('auditingBrand')}
           </h3>
           <div style={{ 
             display: 'flex', 
@@ -209,11 +211,11 @@ const DesignAuditor: React.FC = () => {
         }}
       >
         {auditing ? (
-          <>Analyzing Design...</>
+          <>{t('analyzing')}</>
         ) : (
           <>
             <Search size={18} />
-            Run Design Audit
+            {t('runAudit')}
           </>
         )}
       </button>
@@ -221,7 +223,7 @@ const DesignAuditor: React.FC = () => {
       {/* Loading State */}
       {auditing && (
         <div style={{ textAlign: 'center', padding: 'var(--spectrum-spacing-600)' }}>
-          <ProgressCircle size="medium" label="Analyzing design..." />
+          <ProgressCircle size="medium" label={t('analyzingDesign')} />
         </div>
       )}
 
@@ -256,7 +258,7 @@ const DesignAuditor: React.FC = () => {
               fontWeight: 600,
               margin: '0 0 var(--spectrum-spacing-75) 0'
             }}>
-              Overall Score
+              {t('overallScore')}
             </p>
             <span style={{
               display: 'inline-block',
@@ -285,7 +287,7 @@ const DesignAuditor: React.FC = () => {
               gap: 'var(--spectrum-spacing-100)'
             }}>
               <BarChart3 size={20} color="#00719f" />
-              Detailed Metrics
+              {t('detailedMetrics')}
             </h3>
             {metrics.map((metric, index) => (
               <div

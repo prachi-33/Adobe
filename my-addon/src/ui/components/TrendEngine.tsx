@@ -3,8 +3,10 @@ import { useBrand } from '../../context/BrandContext';
 import { groqClient } from '../../services/GroqClient';
 import { TrendingUp, Sparkles, Copy, Palette, RefreshCw } from 'lucide-react';
 import { ProgressCircle } from './LoadingComponents';
+import { useLanguage } from '../../context/LanguageContext';
 
 const TrendEngine: React.FC = () => {
+  const { t, language } = useLanguage();
   const { brandData, hasBrandData } = useBrand();
   const [selectedTrends, setSelectedTrends] = useState<string[]>([]);
   const [selectedContentType, setSelectedContentType] = useState<string>('');
@@ -13,16 +15,16 @@ const TrendEngine: React.FC = () => {
   const [loadingTrends, setLoadingTrends] = useState(false);
   const [trends, setTrends] = useState<Array<{ id: string; name: string; desc: string }>>([]);
 
-  // Fetch AI-generated trends on component mount and when brand data changes
+  // Fetch AI-generated trends on component mount and when brand data or language changes
   useEffect(() => {
     fetchViralTrends();
-  }, [hasBrandData]);
+  }, [hasBrandData, language]);
 
   const fetchViralTrends = async () => {
     setLoadingTrends(true);
     try {
       // Pass brand data if available to get tailored trend suggestions
-      const aiTrends = await groqClient.getViralTrends(hasBrandData ? brandData : undefined);
+      const aiTrends = await groqClient.getViralTrends(hasBrandData ? brandData : undefined, language);
       setTrends(aiTrends);
     } catch (error) {
       console.error('Error fetching trends:', error);
@@ -84,7 +86,8 @@ const TrendEngine: React.FC = () => {
         `${trendNames} for ${contentTypeName}`,
         brandData,
         false,
-        []
+        [],
+        language
       );
       setGeneratedPrompt(prompt);
     } catch (error) {
@@ -123,7 +126,7 @@ const TrendEngine: React.FC = () => {
             gap: 'var(--spectrum-spacing-100)'
           }}>
             <Palette size={18} color="#00719f" />
-            Using Your Brand Colors:
+            {t('usingBrandColors')}
           </h3>
           <div style={{ display: 'flex', gap: 'var(--spectrum-spacing-100)' }}>
             {brandData.primaryColors.slice(0, 5).map((color, index) => (
@@ -161,7 +164,7 @@ const TrendEngine: React.FC = () => {
               color: 'var(--spectrum-heading-color)',
             }}
           >
-            What's Viral & Trending? {hasBrandData && <span style={{ color: '#00719f', fontSize: 'var(--spectrum-body-s-text-size)', fontWeight: 400 }}>✓ Tailored to your brand</span>}
+            {t('viralTrending')} {hasBrandData && <span style={{ color: '#00719f', fontSize: 'var(--spectrum-body-s-text-size)', fontWeight: 400 }}>✓ {t('tailoredBrand')}</span>}
           </label>
           <button
             onClick={fetchViralTrends}
@@ -183,13 +186,13 @@ const TrendEngine: React.FC = () => {
             title="Refresh trends"
           >
             <RefreshCw size={14} className={loadingTrends ? 'animate-spin' : ''} />
-            Refresh
+            {t('refresh')}
           </button>
         </div>
         
         {loadingTrends ? (
           <div style={{ textAlign: 'center', padding: 'var(--spectrum-spacing-400)' }}>
-            <ProgressCircle size="small" label="Loading AI trends..." />
+            <ProgressCircle size="small" label={t('loadingTrends')} />
           </div>
         ) : (
           <div style={{
@@ -277,7 +280,7 @@ const TrendEngine: React.FC = () => {
             color: '#4069FD',
             fontWeight: 600,
           }}>
-            {selectedTrends.length} trend{selectedTrends.length > 1 ? 's' : ''} selected
+            {selectedTrends.length} {t('trendsSelected').replace('{count}', selectedTrends.length.toString())}
           </div>
         )}
       </div>
@@ -296,7 +299,7 @@ const TrendEngine: React.FC = () => {
             marginBottom: 'var(--spectrum-spacing-100)'
           }}
         >
-          What do you want to generate?
+          {t('whatGenerate')}
         </label>
         <div style={{
           position: 'relative',
@@ -364,7 +367,7 @@ const TrendEngine: React.FC = () => {
             fontSize: 'var(--spectrum-body-s-text-size)',
             color: 'var(--spectrum-gray-700)',
           }}>
-            <strong style={{ color: '#4069FD' }}>Selected:</strong> {contentTypes.find(t => t.id === selectedContentType)?.name}
+            <strong style={{ color: '#4069FD' }}>{t('selected')}:</strong> {contentTypes.find(t => t.id === selectedContentType)?.name}
           </div>
         )}
       </div>
@@ -400,11 +403,11 @@ const TrendEngine: React.FC = () => {
         }}
       >
         {generatingPrompt ? (
-          <>Generating Prompt...</>
+          <>{t('generating')}</>
         ) : (
           <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <Sparkles size={18} />
-            Generate Firefly Prompt
+            {t('generatePrompt')}
           </span>
         )}
       </button>
@@ -412,7 +415,7 @@ const TrendEngine: React.FC = () => {
       {/* Loading State */}
       {generatingPrompt && (
         <div style={{ textAlign: 'center', padding: 'var(--spectrum-spacing-600)', marginBottom: 'var(--spectrum-spacing-400)' }}>
-          <ProgressCircle size="medium" label="Generating prompt..." />
+          <ProgressCircle size="medium" label={t('generatingPrompt')} />
         </div>
       )}
 

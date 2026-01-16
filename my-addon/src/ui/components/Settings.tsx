@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Globe } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const Settings: React.FC = () => {
-  const [language, setLanguage] = useState('en');
+  const { language, setLanguage, t } = useLanguage();
 
   return (
     <div style={{ padding: 'var(--spectrum-spacing-400)', fontFamily: 'adobe-clean, sans-serif' }}>
       <h2 className="spectrum-heading-xl">
-        Settings
+        {t('settings')}
       </h2>
       <p className="spectrum-body-s" style={{ marginBottom: 'var(--spectrum-spacing-400)' }}>
-        Configure your language preferences.
+        {t('configureLanguage')}
       </p>
 
       {/* Language Setting */}
@@ -28,11 +29,11 @@ const Settings: React.FC = () => {
           marginBottom: 'var(--spectrum-spacing-100)'
         }}>
           <Globe size={16} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
-          Language
+          {t('language')}
         </label>
         <select
           value={language}
-          onChange={(e) => setLanguage(e.target.value)}
+          onChange={(e) => setLanguage(e.target.value as 'en' | 'es' | 'fr')}
           className="spectrum-input"
           style={{
             width: '100%',
@@ -41,8 +42,6 @@ const Settings: React.FC = () => {
           <option value="en">English</option>
           <option value="es">Español</option>
           <option value="fr">Français</option>
-          <option value="de">Deutsch</option>
-          <option value="ja">日本語</option>
         </select>
       </div>
     </div>

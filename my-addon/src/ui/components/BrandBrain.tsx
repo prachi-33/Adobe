@@ -3,8 +3,10 @@ import { useBrand } from '../../context/BrandContext';
 import { groqClient } from '../../services/GroqClient';
 import { Brain, Link, FileText, Sparkles, Palette, MessageSquare, CheckSquare, Ruler } from 'lucide-react';
 import { ProgressCircle } from './LoadingComponents';
+import { useLanguage } from '../../context/LanguageContext';
 
 const BrandBrain: React.FC = () => {
+  const { t, language } = useLanguage();
   const [url, setUrl] = useState('');
   const [manualText, setManualText] = useState('');
   const [useManualInput, setUseManualInput] = useState(false);
@@ -24,7 +26,7 @@ const BrandBrain: React.FC = () => {
       try {
         validUrl = new URL(url);
       } catch {
-        throw new Error('Please enter a valid URL (e.g., https://example.com)');
+        throw new Error(t('invalidUrl'));
       }
 
       // Try multiple CORS proxies in sequence
@@ -92,7 +94,7 @@ const BrandBrain: React.FC = () => {
       }
 
       // Use Groq to analyze and extract brand identity
-      const extractedBrandData = await groqClient.extractBrandIdentity(textContent);
+      const extractedBrandData = await groqClient.extractBrandIdentity(textContent, language);
       
       setBrandData(extractedBrandData);
       setLoading(false);
@@ -111,7 +113,7 @@ const BrandBrain: React.FC = () => {
     
     try {
       // Use Groq to analyze and extract brand identity from manual text
-      const extractedBrandData = await groqClient.extractBrandIdentity(manualText);
+      const extractedBrandData = await groqClient.extractBrandIdentity(manualText, language);
       
       setBrandData(extractedBrandData);
       setLoading(false);
@@ -142,7 +144,7 @@ const BrandBrain: React.FC = () => {
           }}
         >
           <Link size={14} style={{ marginRight: '4px' }} />
-          From URL
+          {t('fromUrl')}
         </button>
         <button
           onClick={() => setUseManualInput(true)}
@@ -160,7 +162,7 @@ const BrandBrain: React.FC = () => {
           }}
         >
           <FileText size={14} style={{ marginRight: '4px' }} />
-          Paste Text
+          {t('pasteText')}
         </button>
       </div>
 
@@ -173,7 +175,7 @@ const BrandBrain: React.FC = () => {
           color: 'var(--spectrum-label-color)',
           marginBottom: 'var(--spectrum-spacing-100)'
         }}>
-          Website URL
+          {t('websiteUrl')}
         </label>
         <input
           type="url"
@@ -230,11 +232,11 @@ const BrandBrain: React.FC = () => {
           }}
         >
           {loading ? (
-            <>Extracting...</>
+            <>{t('extracting')}</>
           ) : (
             <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <Sparkles size={16} />
-              Extract Brand Data
+              {t('extractBrand')}
             </span>
           )}
           </button>
@@ -249,12 +251,12 @@ const BrandBrain: React.FC = () => {
           color: 'var(--spectrum-label-color)',
           marginBottom: 'var(--spectrum-spacing-100)'
         }}>
-          Brand Text
+          {t('brandText')}
         </label>
         <textarea
           value={manualText}
           onChange={(e) => setManualText(e.target.value)}
-          placeholder="Paste brand guidelines, website copy, or any brand-related text here..."
+          placeholder={t('brandTextPlaceholder')}
           disabled={loading}
           rows={8}
           style={{
@@ -307,11 +309,11 @@ const BrandBrain: React.FC = () => {
           }}
         >
           {loading ? (
-            <>Extracting...</>
+            <>{t('extracting')}</>
           ) : (
             <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <Sparkles size={16} />
-              Extract Brand Data
+              {t('extractBrand')}
             </span>
           )}
           </button>
@@ -419,7 +421,7 @@ const BrandBrain: React.FC = () => {
                 gap: 'var(--spectrum-spacing-100)'
               }}>
                 <MessageSquare size={18} color="#00719f" />
-                Brand Voice
+                {t('brandVoice')}
               </h4>
               <p style={{ 
                 margin: 0,
@@ -449,7 +451,7 @@ const BrandBrain: React.FC = () => {
                 gap: 'var(--spectrum-spacing-100)'
               }}>
                 <Ruler size={18} color="#00719f" />
-                Design Guidelines
+                {t('designGuidelines')}
               </h4>
               <ul style={{ 
                 margin: 0,

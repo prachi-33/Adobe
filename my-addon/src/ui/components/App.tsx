@@ -8,6 +8,7 @@ import { Theme } from "@swc-react/theme";
 import React, { useState } from "react";
 import { DocumentSandboxApi } from "../../models/DocumentSandboxApi";
 import { BrandProvider } from "../../context/BrandContext";
+import { LanguageProvider } from "../../context/LanguageContext";
 import { ToastProvider } from "./ToastNotification";
 import TabNavigation from "./TabNavigation";
 import BrandBrain from "./BrandBrain";
@@ -18,7 +19,7 @@ import About from "./About";
 import { Settings as SettingsIcon, Info } from "lucide-react";
 import "./App.css";
 
-import { AddOnSDKAPI } from "https://new.express.adobe.com/static/add-on-sdk/sdk.js";
+import { AddOnSDKAPI } from "https://express.adobe.com/static/add-on-sdk/sdk.js";
 
 const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxProxy: DocumentSandboxApi }) => {
     const [activeTab, setActiveTab] = useState('brand-brain');
@@ -42,31 +43,32 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
 
     return (
         <Theme system="express" scale="medium" color="light">
-            <ToastProvider>
-                <BrandProvider>
-                    <div className="app-container">
-                        <div className="app-header">
-                            <h1 className="app-title">Pixel Pluck</h1>
-                            <p className="app-subtitle">Brand-Powered Design Assistant</p>
-                        </div>
-                        
-                        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-                        
-                        <div className="tab-content">
-                            {renderTabContent()}
-                        </div>
+            <LanguageProvider>
+                <ToastProvider>
+                    <BrandProvider>
+                        <div className="app-container">
+                            <div className="app-header">
+                                <h1 className="app-title">Pixel Pluck</h1>
+                                <p className="app-subtitle">Brand-Powered Design Assistant</p>
+                            </div>
+                            
+                            <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+                            
+                            <div className="tab-content">
+                                {renderTabContent()}
+                            </div>
 
-                        {/* Footer with Settings and About */}
-                        <div className="app-footer">
-                            <button
-                                onClick={() => setActiveTab('settings')}
-                                className="footer-icon-button"
-                                title="Settings"
-                                style={{
-                                    color: activeTab === 'settings' ? '#00719f' : 'var(--spectrum-gray-600)'
-                                }}
-                            >
-                                <SettingsIcon size={16} />
+                            {/* Footer with Settings and About */}
+                            <div className="app-footer">
+                                <button
+                                    onClick={() => setActiveTab('settings')}
+                                    className="footer-icon-button"
+                                    title="Settings"
+                                    style={{
+                                        color: activeTab === 'settings' ? '#00719f' : 'var(--spectrum-gray-600)'
+                                    }}
+                                >
+                                    <SettingsIcon size={16} />
                             </button>
                             <button
                                 onClick={() => setActiveTab('about')}
@@ -82,6 +84,7 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
                     </div>
                 </BrandProvider>
             </ToastProvider>
+            </LanguageProvider>
         </Theme>
     );
 };

@@ -1,14 +1,17 @@
 import React from 'react';
 import { Info, Heart, ExternalLink, Github, Mail, BookOpen } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const About: React.FC = () => {
+  const { t } = useLanguage();
+  
   return (
     <div style={{ padding: 'var(--spectrum-spacing-400)', fontFamily: 'adobe-clean, sans-serif' }}>
       <h2 className="spectrum-heading-xl">
-        About Pixel Pluck
+        {t('aboutTitle')}
       </h2>
       <p className="spectrum-body-s" style={{ marginBottom: 'var(--spectrum-spacing-500)' }}>
-        Your AI-powered brand and design assistant for Adobe Express
+        {t('aboutSubtitle')}
       </p>
 
       {/* App Info Section */}
@@ -35,7 +38,7 @@ const About: React.FC = () => {
           color: 'var(--spectrum-gray-700)',
           lineHeight: 1.6
         }}>
-          Extract brand identity, analyze designs, and discover trends powered by AI
+          {t('appTagline')}
         </p>
       </div>
 
