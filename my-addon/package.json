@@ -1,5 +1,5 @@
 {
-    "name": "adobe-addon",
+    "name": "my-addon",
     "version": "1.0.0",
     "description": "Adobe Creative Cloud Web Add-on.",
     "scripts": {
@@ -17,11 +17,8 @@
     "dependencies": {
         "@swc-react/button": "1.7.0",
         "@swc-react/theme": "1.7.0",
-        "@types/react-syntax-highlighter": "^15.5.13",
         "react": "18.2.0",
-        "react-dom": "18.2.0",
-        "react-live": "^4.1.8",
-        "react-syntax-highlighter": "^16.1.0"
+        "react-dom": "18.2.0"
     },
     "devDependencies": {
         "@adobe/ccweb-add-on-scripts": "^3.6.0",
@@ -36,10 +33,5 @@
         "typescript": "5.3.2",
         "webpack": "5.98.0",
         "webpack-cli": "6.0.1"
-    }
-    ,
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/<your-username>/adobe-addon.git"
     }
 }
