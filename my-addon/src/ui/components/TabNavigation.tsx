@@ -1,5 +1,5 @@
 import React from 'react';
-import { Brain, TrendingUp, Search } from 'lucide-react';
+import { Brain, TrendingUp, Search, Settings as SettingsIcon, Info } from 'lucide-react';
 
 interface TabNavigationProps {
   activeTab: string;
@@ -9,8 +9,8 @@ interface TabNavigationProps {
 const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange }) => {
   const tabs = [
     { id: 'brand-brain', label: 'Brand Brain', icon: Brain },
-    { id: 'trend-engine', label: 'Trend Engine', icon: TrendingUp },
-    { id: 'design-auditor', label: 'Design Auditor', icon: Search },
+    { id: 'trend-engine', label: 'Trends', icon: TrendingUp },
+    { id: 'design-auditor', label: 'Auditor', icon: Search },
   ];
 
   return (
@@ -46,7 +46,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px'
+              gap: 'var(--spectrum-spacing-100)'
             }}
             onMouseEnter={(e) => {
               if (!isActive) {

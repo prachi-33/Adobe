@@ -1,60 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useBrand } from '../../context/BrandContext';
 import { groqClient } from '../../services/GroqClient';
-import { TrendingUp, Sparkles, Copy, Palette } from 'lucide-react';
+import { TrendingUp, Sparkles, Copy, Palette, RefreshCw } from 'lucide-react';
+import { ProgressCircle } from './LoadingComponents';
 
 const TrendEngine: React.FC = () => {
   const { brandData, hasBrandData } = useBrand();
-  const [selectedTrend, setSelectedTrend] = useState<string>('');
-  const [selectedViralStyle, setSelectedViralStyle] = useState<string>('');
+  const [selectedTrends, setSelectedTrends] = useState<string[]>([]);
+  const [selectedContentType, setSelectedContentType] = useState<string>('');
   const [generatingPrompt, setGeneratingPrompt] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null);
+  const [loadingTrends, setLoadingTrends] = useState(false);
+  const [trends, setTrends] = useState<Array<{ id: string; name: string; desc: string }>>([]);
 
-  const viralStyles = [
-    { id: 'none', name: 'No Viral Style', desc: 'Standard design without viral elements' },
-    { id: 'republic-day', name: 'Republic Day', desc: 'Patriotic tricolor, unity messaging, "Celebrating 77 years of democracy"' },
-    { id: 'lohri', name: 'Lohri Festival', desc: 'Bonfire imagery, harvest celebration, warm tones' },
-    { id: 'valentines', name: 'Valentine\'s Day', desc: 'Romantic themes, self-love narrative, modern hearts' },
-    { id: 'holi', name: 'Holi Festival', desc: 'Color explosions, playful energy, togetherness hook' },
-    { id: 'pov-story', name: 'POV Story', desc: 'Point-of-view narrative, first-person perspective, relatable hooks' },
-    { id: 'before-after', name: 'Before/After', desc: 'Transformation reveal, side-by-side comparison, dramatic contrast' },
-    { id: 'tutorial', name: 'Tutorial Aesthetic', desc: 'Step-by-step visual, educational tone, clear progression' },
-    { id: 'cinematic', name: 'Cinematic', desc: 'Film-grade lighting, dramatic depth, movie poster vibes' },
-    { id: 'trending-audio', name: 'Audio-First', desc: 'Beat-synced visuals, rhythm patterns, music video style' },
+  // Fetch AI-generated trends on component mount and when brand data changes
+  useEffect(() => {
+    fetchViralTrends();
+  }, [hasBrandData]);
+
+  const fetchViralTrends = async () => {
+    setLoadingTrends(true);
+    try {
+      // Pass brand data if available to get tailored trend suggestions
+      const aiTrends = await groqClient.getViralTrends(hasBrandData ? brandData : undefined);
+      setTrends(aiTrends);
+    } catch (error) {
+      console.error('Error fetching trends:', error);
+    } finally {
+      setLoadingTrends(false);
+    }
+  };
+
+  const toggleTrendSelection = (trendId: string) => {
+    setSelectedTrends(prev => 
+      prev.includes(trendId)
+        ? prev.filter(id => id !== trendId)
+        : [...prev, trendId]
+    );
+  };
+
+  const contentTypes = [
+    { id: 'social-post', name: 'Social Media Post', desc: 'Instagram, Facebook, Twitter posts (1080x1080)' },
+    { id: 'story', name: 'Story', desc: 'Instagram/Facebook Stories (1080x1920)' },
+    { id: 'banner', name: 'Banner', desc: 'Web banners, headers, and covers' },
+    { id: 'flyer', name: 'Flyer', desc: 'Event flyers and promotional materials' },
+    { id: 'poster', name: 'Poster', desc: 'Print and digital posters' },
+    { id: 'logo', name: 'Logo', desc: 'Brand logos and icons' },
+    { id: 'card', name: 'Card', desc: 'Business cards, greeting cards, invitations' },
+    { id: 'presentation', name: 'Presentation', desc: 'Slides and presentation graphics' },
+    { id: 'video-thumbnail', name: 'Video Thumbnail', desc: 'YouTube and video platform thumbnails' },
+    { id: 'ad', name: 'Advertisement', desc: 'Digital ads and marketing materials' },
   ];
 
-  const trends = [
-    { 
-      id: 'minimalist', 
-      title: 'Minimalist', 
-      desc: 'Clean, simple designs with plenty of white space'
-    },
-    { 
-      id: 'bold-typography', 
-      title: 'Bold Typography', 
-      desc: 'Make a statement with large, impactful text'
-    },
-    { 
-      id: 'gradient', 
-      title: 'Gradient Fusion', 
-      desc: 'Modern color blends and smooth transitions'
-    },
-    { 
-      id: 'vintage', 
-      title: 'Vintage Revival', 
-      desc: 'Retro aesthetics with a modern twist'
-    },
-    { 
-      id: 'abstract', 
-      title: 'Abstract Art', 
-      desc: 'Creative shapes and experimental compositions'
-    },
-    { 
-      id: '3d', 
-      title: '3D Elements', 
-      desc: 'Depth and dimension with realistic renders'
-    },
-  ];
+  // Remove the old trends array - it's now AI-generated
 
   const handleGeneratePrompt = async () => {
     if (!hasBrandData) {
@@ -62,8 +60,13 @@ const TrendEngine: React.FC = () => {
       return;
     }
 
-    if (!selectedTrend) {
-      alert('Please select a trend style first!');
+    if (selectedTrends.length === 0) {
+      alert('Please select at least one trend!');
+      return;
+    }
+
+    if (!selectedContentType) {
+      alert('Please select a content type first!');
       return;
     }
 
@@ -71,14 +74,17 @@ const TrendEngine: React.FC = () => {
     setGeneratedPrompt(null);
 
     try {
-      const trendName = trends.find(t => t.id === selectedTrend)?.title || selectedTrend;
-      const viralStyleIds = selectedViralStyle ? [selectedViralStyle] : [];
+      const trendNames = selectedTrends
+        .map(id => trends.find(t => t.id === id)?.name)
+        .filter(Boolean)
+        .join(', ');
+      const contentTypeName = contentTypes.find(t => t.id === selectedContentType)?.name || selectedContentType;
       
       const prompt = await groqClient.generateFireflyPrompt(
-        trendName,
+        `${trendNames} for ${contentTypeName}`,
         brandData,
-        selectedViralStyle !== 'none' && selectedViralStyle !== '',
-        viralStyleIds
+        false,
+        []
       );
       setGeneratedPrompt(prompt);
     } catch (error) {
@@ -138,54 +144,150 @@ const TrendEngine: React.FC = () => {
         </div>
       )}
 
-      {/* Trend Selection Dropdown */}
+      {/* AI-Generated Trends Checklist */}
       <div style={{
         marginBottom: 'var(--spectrum-spacing-400)'
       }}>
-        <label
-          htmlFor="trend-select"
-          style={{
-            display: 'block',
-            fontSize: 'var(--spectrum-body-text-size)',
-            fontWeight: 600,
-            color: 'var(--spectrum-heading-color)',
-            marginBottom: 'var(--spectrum-spacing-100)'
-          }}
-        >
-          Select Trend Style
-        </label>
-        <select
-          id="trend-select"
-          value={selectedTrend}
-          onChange={(e) => setSelectedTrend(e.target.value)}
-          style={{
-            width: '100%',
-            padding: 'var(--spectrum-spacing-200)',
-            fontSize: 'var(--spectrum-body-text-size)',
-            fontFamily: 'adobe-clean, sans-serif',
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 'var(--spectrum-spacing-100)'
+        }}>
+          <label
+            style={{
+              fontSize: 'var(--spectrum-body-text-size)',
+              fontWeight: 600,
+              color: 'var(--spectrum-heading-color)',
+            }}
+          >
+            What's Viral & Trending? {hasBrandData && <span style={{ color: '#00719f', fontSize: 'var(--spectrum-body-s-text-size)', fontWeight: 400 }}>✓ Tailored to your brand</span>}
+          </label>
+          <button
+            onClick={fetchViralTrends}
+            disabled={loadingTrends}
+            style={{
+              padding: 'var(--spectrum-spacing-100) var(--spectrum-spacing-200)',
+              fontSize: 'var(--spectrum-body-s-text-size)',
+              fontFamily: 'adobe-clean, sans-serif',
+              backgroundColor: 'transparent',
+              color: '#4069FD',
+              border: '1px solid #4069FD',
+              borderRadius: 'var(--spectrum-corner-radius-100)',
+              cursor: loadingTrends ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--spectrum-spacing-100)',
+              opacity: loadingTrends ? 0.6 : 1,
+            }}
+            title="Refresh trends"
+          >
+            <RefreshCw size={14} className={loadingTrends ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+        </div>
+        
+        {loadingTrends ? (
+          <div style={{ textAlign: 'center', padding: 'var(--spectrum-spacing-400)' }}>
+            <ProgressCircle size="small" label="Loading AI trends..." />
+          </div>
+        ) : (
+          <div style={{
             backgroundColor: 'var(--spectrum-background-layer-1)',
-            color: 'var(--spectrum-body-color)',
             border: '1px solid var(--spectrum-border-color)',
             borderRadius: 'var(--spectrum-corner-radius-100)',
-            cursor: 'pointer',
-            outline: 'none',
-          }}
-        >
-          <option value="">-- Choose a trend --</option>
-          {trends.map((trend) => (
-            <option key={trend.id} value={trend.id}>
-              {trend.title} - {trend.desc}
-            </option>
-          ))}
-        </select>
+            padding: 'var(--spectrum-spacing-200)',
+            maxHeight: '300px',
+            overflowY: 'auto',
+          }}>
+            {trends.length === 0 ? (
+              <div style={{
+                textAlign: 'center',
+                padding: 'var(--spectrum-spacing-400)',
+                color: 'var(--spectrum-gray-600)',
+                fontSize: 'var(--spectrum-body-s-text-size)',
+              }}>
+                No trends loaded. Click refresh.
+              </div>
+            ) : (
+              trends.map((trend) => (
+                <label
+                  key={trend.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    padding: 'var(--spectrum-spacing-200)',
+                    cursor: 'pointer',
+                    borderRadius: 'var(--spectrum-corner-radius-75)',
+                    backgroundColor: selectedTrends.includes(trend.id) ? 'rgba(64, 105, 253, 0.1)' : 'transparent',
+                    border: selectedTrends.includes(trend.id) ? '1px solid #4069FD' : '1px solid transparent',
+                    marginBottom: 'var(--spectrum-spacing-75)',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!selectedTrends.includes(trend.id)) {
+                      e.currentTarget.style.backgroundColor = 'var(--spectrum-gray-100)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!selectedTrends.includes(trend.id)) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedTrends.includes(trend.id)}
+                    onChange={() => toggleTrendSelection(trend.id)}
+                    style={{
+                      marginRight: 'var(--spectrum-spacing-200)',
+                      marginTop: '2px',
+                      cursor: 'pointer',
+                      accentColor: '#4069FD',
+                      width: '16px',
+                      height: '16px',
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontWeight: 600,
+                      fontSize: 'var(--spectrum-body-text-size)',
+                      color: 'var(--spectrum-heading-color)',
+                      marginBottom: 'var(--spectrum-spacing-50)',
+                    }}>
+                      {trend.name}
+                    </div>
+                    <div style={{
+                      fontSize: 'var(--spectrum-body-s-text-size)',
+                      color: 'var(--spectrum-gray-700)',
+                    }}>
+                      {trend.desc}
+                    </div>
+                  </div>
+                </label>
+              ))
+            )}
+          </div>
+        )}
+        
+        {selectedTrends.length > 0 && (
+          <div style={{
+            marginTop: 'var(--spectrum-spacing-200)',
+            fontSize: 'var(--spectrum-body-s-text-size)',
+            color: '#4069FD',
+            fontWeight: 600,
+          }}>
+            {selectedTrends.length} trend{selectedTrends.length > 1 ? 's' : ''} selected
+          </div>
+        )}
       </div>
 
-      {/* Viral Style Selection Dropdown */}
+      {/* Content Type Selection Dropdown */}
       <div style={{
         marginBottom: 'var(--spectrum-spacing-400)'
       }}>
         <label
-          htmlFor="viral-select"
+          htmlFor="content-type-select"
           style={{
             display: 'block',
             fontSize: 'var(--spectrum-body-text-size)',
@@ -194,37 +296,83 @@ const TrendEngine: React.FC = () => {
             marginBottom: 'var(--spectrum-spacing-100)'
           }}
         >
-          Select Viral Style (Optional)
+          What do you want to generate?
         </label>
-        <select
-          id="viral-select"
-          value={selectedViralStyle}
-          onChange={(e) => setSelectedViralStyle(e.target.value)}
-          style={{
-            width: '100%',
+        <div style={{
+          position: 'relative',
+        }}>
+          <select
+            id="content-type-select"
+            value={selectedContentType}
+            onChange={(e) => setSelectedContentType(e.target.value)}
+            style={{
+              width: '100%',
+              padding: 'var(--spectrum-spacing-300) var(--spectrum-spacing-400)',
+              fontSize: 'var(--spectrum-body-text-size)',
+              fontFamily: 'adobe-clean, sans-serif',
+              fontWeight: 400,
+              backgroundColor: 'var(--spectrum-background-layer-1)',
+              color: selectedContentType ? 'var(--spectrum-heading-color)' : 'var(--spectrum-gray-600)',
+              border: '1px solid var(--spectrum-border-color)',
+              borderRadius: 'var(--spectrum-corner-radius-100)',
+              cursor: 'pointer',
+              outline: 'none',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+              paddingRight: 'var(--spectrum-spacing-500)',
+              transition: 'border-color 0.13s ease-out, box-shadow 0.13s ease-out',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#4069FD';
+              e.currentTarget.style.boxShadow = '0 0 0 1px #4069FD';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'var(--spectrum-border-color)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            <option value="" disabled>-- Choose content type --</option>
+            {contentTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name} - {type.desc}
+              </option>
+            ))}
+          </select>
+          {/* Custom dropdown arrow */}
+          <div style={{
+            position: 'absolute',
+            right: 'var(--spectrum-spacing-200)',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            pointerEvents: 'none',
+            width: '12px',
+            height: '12px',
+            borderLeft: '2px solid var(--spectrum-gray-700)',
+            borderBottom: '2px solid var(--spectrum-gray-700)',
+            rotate: '-45deg',
+            marginTop: '-3px',
+          }} />
+        </div>
+        {selectedContentType && (
+          <div style={{
+            marginTop: 'var(--spectrum-spacing-200)',
             padding: 'var(--spectrum-spacing-200)',
-            fontSize: 'var(--spectrum-body-text-size)',
-            fontFamily: 'adobe-clean, sans-serif',
-            backgroundColor: 'var(--spectrum-background-layer-1)',
-            color: 'var(--spectrum-body-color)',
-            border: '1px solid var(--spectrum-border-color)',
+            backgroundColor: 'rgba(64, 105, 253, 0.05)',
+            border: '1px solid rgba(64, 105, 253, 0.2)',
             borderRadius: 'var(--spectrum-corner-radius-100)',
-            cursor: 'pointer',
-            outline: 'none',
-          }}
-        >
-          {viralStyles.map((style) => (
-            <option key={style.id} value={style.id}>
-              {style.name} - {style.desc}
-            </option>
-          ))}
-        </select>
+            fontSize: 'var(--spectrum-body-s-text-size)',
+            color: 'var(--spectrum-gray-700)',
+          }}>
+            <strong style={{ color: '#4069FD' }}>Selected:</strong> {contentTypes.find(t => t.id === selectedContentType)?.name}
+          </div>
+        )}
       </div>
 
       {/* Generate Button */}
       <button
         onClick={handleGeneratePrompt}
-        disabled={!hasBrandData || generatingPrompt || !selectedTrend}
+        disabled={!hasBrandData || generatingPrompt || selectedTrends.length === 0 || !selectedContentType}
         style={{
           width: '100%',
           padding: 'var(--spectrum-spacing-300)',
@@ -235,18 +383,18 @@ const TrendEngine: React.FC = () => {
           color: '#fff',
           border: 'none',
           borderRadius: 'var(--spectrum-corner-radius-100)',
-          cursor: hasBrandData && !generatingPrompt && selectedTrend ? 'pointer' : 'not-allowed',
+          cursor: hasBrandData && !generatingPrompt && selectedTrends.length > 0 ? 'pointer' : 'not-allowed',
           transition: 'all 0.13s ease-out',
-          opacity: !hasBrandData || !selectedTrend ? 0.5 : 1,
+          opacity: !hasBrandData || selectedTrends.length === 0 ? 0.5 : 1,
           marginBottom: 'var(--spectrum-spacing-400)'
         }}
         onMouseEnter={(e) => {
-          if (hasBrandData && !generatingPrompt && selectedTrend) {
+          if (hasBrandData && !generatingPrompt && selectedTrends.length > 0) {
             e.currentTarget.style.backgroundColor = '#5078FE';
           }
         }}
         onMouseLeave={(e) => {
-          if (hasBrandData && !generatingPrompt && selectedTrend) {
+          if (hasBrandData && !generatingPrompt && selectedTrends.length > 0) {
             e.currentTarget.style.backgroundColor = '#4069FD';
           }
         }}
@@ -261,8 +409,15 @@ const TrendEngine: React.FC = () => {
         )}
       </button>
 
+      {/* Loading State */}
+      {generatingPrompt && (
+        <div style={{ textAlign: 'center', padding: 'var(--spectrum-spacing-600)', marginBottom: 'var(--spectrum-spacing-400)' }}>
+          <ProgressCircle size="medium" label="Generating prompt..." />
+        </div>
+      )}
+
       {/* Generated Prompt Display */}
-      {generatedPrompt && (
+      {!generatingPrompt && generatedPrompt && (
         <div style={{
           padding: 'var(--spectrum-spacing-400)',
           backgroundColor: 'var(--spectrum-background-layer-2)',

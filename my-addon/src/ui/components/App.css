@@ -94,6 +94,29 @@
     --spectrum-negative-color: #e34850;
 }
 
+/* Loading Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -153,6 +176,37 @@ body {
     flex: 1;
     overflow-y: auto;
     background-color: var(--spectrum-background-base);
+}
+
+/* Footer */
+.app-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spectrum-spacing-200);
+    padding: var(--spectrum-spacing-100);
+    background-color: var(--spectrum-background-layer-1);
+    border-top: 1px solid var(--spectrum-divider-color);
+}
+
+.footer-icon-button {
+    background: none;
+    border: none;
+    padding: var(--spectrum-spacing-100);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--spectrum-corner-radius-100);
+    transition: all 0.13s ease-out;
+}
+
+.footer-icon-button:hover {
+    background-color: var(--spectrum-gray-200);
+}
+
+.footer-icon-button:active {
+    background-color: var(--spectrum-gray-300);
 }
 
 /* Spectrum Input Field */

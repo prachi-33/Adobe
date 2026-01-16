@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useBrand } from '../../context/BrandContext';
 import { groqClient, VisionAnalysis } from '../../services/GroqClient';
 import { Search, BarChart3, Lightbulb, Sparkles, Upload } from 'lucide-react';
+import { ProgressCircle } from './LoadingComponents';
 import addOnUISdk from "https://new.express.adobe.com/static/add-on-sdk/sdk.js";
 
 const DesignAuditor: React.FC = () => {
@@ -47,22 +48,49 @@ const DesignAuditor: React.FC = () => {
       }
       const base64 = btoa(binaryString);
 
+      // Check if page has any content
+      if (!base64 || base64.length < 100) {
+        throw new Error('Page appears empty. Add some content before running design audit.');
+      }
+
       // Analyze with Groq Vision
       const visionAnalysis = await groqClient.analyzeDesign(base64, brandData);
+      
+      // Validate analysis returned
+      if (!visionAnalysis) {
+        throw new Error('Design review service is currently unavailable. Please try again later.');
+      }
+      
       setAnalysis(visionAnalysis);
     } catch (error) {
       console.error('Error running audit:', error);
-      setError(error instanceof Error ? error.message : 'Failed to run audit. Please try again.');
+      
+      // Provide specific error messages
+      let errorMessage = 'Failed to run audit. Please try again.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('unavailable') || error.message.includes('service')) {
+          errorMessage = 'Design review service is temporarily unavailable. Please try again in a moment.';
+        } else if (error.message.includes('empty')) {
+          errorMessage = error.message;
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setAuditing(false);
     }
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return '#00C853'; // Green
-    if (score >= 75) return '#FA0'; // Yellow/Orange
-    if (score >= 60) return '#FF9800'; // Orange
-    return '#F44336'; // Red
+    if (score >= 90) return '#4069FD'; // Primary Blue
+    if (score >= 75) return '#00719f'; // Accent Teal
+    if (score >= 60) return '#FA0'; // Yellow/Orange
+    return '#5078FE'; // Light Blue
   };
 
   const getScoreLabel = (score: number) => {
@@ -83,19 +111,21 @@ const DesignAuditor: React.FC = () => {
 
   return (
     <div style={{ padding: 'var(--spectrum-spacing-400)', fontFamily: 'adobe-clean, sans-serif' }}>
+
       {/* Error Display */}
       {error && (
         <div style={{
           padding: 'var(--spectrum-spacing-300)',
-          backgroundColor: 'var(--spectrum-red-100)',
-          border: '1px solid var(--spectrum-red-400)',
+          backgroundColor: 'var(--spectrum-background-layer-2)',
+          border: '1px solid var(--spectrum-negative-color)',
           borderRadius: 'var(--spectrum-corner-radius-100)',
           marginBottom: 'var(--spectrum-spacing-400)',
         }}>
           <p style={{ 
             margin: 0,
-            fontSize: 'var(--spectrum-body-s-text-size)',
-            color: 'var(--spectrum-red-900)'
+            fontSize: 'var(--spectrum-font-size-100)',
+            color: 'var(--spectrum-negative-color)',
+            fontWeight: 500
           }}>
             {error}
           </p>
@@ -111,10 +141,7 @@ const DesignAuditor: React.FC = () => {
           border: '1px solid var(--spectrum-border-color)',
           marginBottom: 'var(--spectrum-spacing-400)'
         }}>
-          <h3 style={{ 
-            fontSize: 'var(--spectrum-heading-m-text-size)',
-            fontWeight: 600,
-            color: 'var(--spectrum-heading-color)',
+          <h3 className="spectrum-heading-m" style={{ 
             margin: '0 0 var(--spectrum-spacing-200) 0'
           }}>
             Auditing Against Your Brand:
@@ -184,15 +211,22 @@ const DesignAuditor: React.FC = () => {
         {auditing ? (
           <>Analyzing Design...</>
         ) : (
-          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <>
             <Search size={18} />
             Run Design Audit
-          </span>
+          </>
         )}
       </button>
 
+      {/* Loading State */}
+      {auditing && (
+        <div style={{ textAlign: 'center', padding: 'var(--spectrum-spacing-600)' }}>
+          <ProgressCircle size="medium" label="Analyzing design..." />
+        </div>
+      )}
+
       {/* Analysis Results */}
-      {analysis && (
+      {!auditing && analysis && (
         <div style={{
           padding: 'var(--spectrum-spacing-400)',
           backgroundColor: 'var(--spectrum-background-layer-2)',
@@ -228,7 +262,7 @@ const DesignAuditor: React.FC = () => {
               display: 'inline-block',
               padding: 'var(--spectrum-spacing-75) var(--spectrum-spacing-300)',
               backgroundColor: getScoreColor(analysis.score),
-              color: '#FFF',
+              color: '#fff',
               borderRadius: 'var(--spectrum-corner-radius-100)',
               fontSize: 'var(--spectrum-body-s-text-size)',
               fontWeight: 700,
@@ -244,10 +278,7 @@ const DesignAuditor: React.FC = () => {
             gap: 'var(--spectrum-spacing-300)',
             marginBottom: 'var(--spectrum-spacing-400)'
           }}>
-            <h3 style={{ 
-              fontSize: 'var(--spectrum-heading-l-text-size)',
-              fontWeight: 700,
-              color: 'var(--spectrum-heading-color)',
+            <h3 className="spectrum-heading-l" style={{ 
               margin: '0 0 var(--spectrum-spacing-200) 0',
               display: 'flex',
               alignItems: 'center',
@@ -309,10 +340,7 @@ const DesignAuditor: React.FC = () => {
           {/* Feedback */}
           {analysis.feedback.length > 0 && (
             <div style={{ marginBottom: 'var(--spectrum-spacing-400)' }}>
-              <h3 style={{ 
-                fontSize: 'var(--spectrum-heading-l-text-size)',
-                fontWeight: 700,
-                color: 'var(--spectrum-heading-color)',
+              <h3 className="spectrum-heading-l" style={{ 
                 margin: '0 0 var(--spectrum-spacing-200) 0',
                 display: 'flex',
                 alignItems: 'center',
@@ -340,10 +368,7 @@ const DesignAuditor: React.FC = () => {
           {/* Recommendations */}
           {analysis.recommendations.length > 0 && (
             <div>
-              <h3 style={{ 
-                fontSize: 'var(--spectrum-heading-l-text-size)',
-                fontWeight: 700,
-                color: 'var(--spectrum-heading-color)',
+              <h3 className="spectrum-heading-l" style={{ 
                 margin: '0 0 var(--spectrum-spacing-200) 0',
                 display: 'flex',
                 alignItems: 'center',

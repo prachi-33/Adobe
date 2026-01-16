@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useBrand } from '../../context/BrandContext';
 import { groqClient } from '../../services/GroqClient';
 import { Brain, Link, FileText, Sparkles, Palette, MessageSquare, CheckSquare, Ruler } from 'lucide-react';
+import { ProgressCircle } from './LoadingComponents';
 
 const BrandBrain: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -336,7 +337,7 @@ const BrandBrain: React.FC = () => {
         </div>
       )}
 
-      {brandData.primaryColors.length > 0 && (
+      {!loading && brandData.primaryColors.length > 0 && (
         <div style={{
           padding: 'var(--spectrum-spacing-400)',
           backgroundColor: 'var(--spectrum-background-layer-2)',
