@@ -370,66 +370,81 @@ Return ONLY the JSON array, no markdown formatting or additional text.`;
         ? `\n- Layout Patterns: ${brandGuidelines.layoutPatterns.join(', ')}`
         : '';
 
-      const prompt = `You are an expert design auditor analyzing a design against specific brand guidelines. Be precise and objective in your evaluation. Provide all feedback in ${responseLang}.
+      const prompt = `You are an expert design auditor analyzing a design against specific brand guidelines. Be EXTREMELY STRICT and uncompromising in your evaluation. This is a professional brand compliance audit - no excuses accepted. Provide all feedback in ${responseLang}.
 
-${brandGuidelines.websiteScreenshot ? '**IMPORTANT**: Use the brand website screenshot (second image) as your visual reference for brand consistency.\n\n' : ''}**BRAND GUIDELINES** (design MUST follow these):
+${brandGuidelines.websiteScreenshot ? '**CRITICAL**: Use the brand website screenshot (second image) as your PRIMARY visual reference for brand consistency. The design MUST match this exactly.\n\n' : ''}**BRAND GUIDELINES** (design MUST follow these EXACTLY - ZERO TOLERANCE):
 
-**Colors**: ${brandGuidelines.primaryColors.join(', ')}
-**Brand Voice**: ${brandGuidelines.brandVoice}
-**Design Principles**: ${brandGuidelines.designGuidelines.join(' | ')}${typographyInfo}${spacingInfo}${layoutInfo}
+**MANDATORY Colors**: ${brandGuidelines.primaryColors.join(', ')} - NO OTHER COLORS ALLOWED
+**MANDATORY Brand Voice**: ${brandGuidelines.brandVoice} - Must be reflected in ALL design elements
+**MANDATORY Design Principles**: ${brandGuidelines.designGuidelines.join(' | ')} - Every principle must be visibly implemented${typographyInfo}${spacingInfo}${layoutInfo}
 
-**ANALYSIS FRAMEWORK**:
+**STRICT ANALYSIS FRAMEWORK** (FAILURE = 0 POINTS):
 
 1. **Color Consistency (0-100)**:
-   - Identify ALL colors used in the design
-   - Compare each color to the brand palette: ${brandGuidelines.primaryColors.join(', ')}
-   - Score: 100 if all colors match exactly, -20 for each non-brand color
-   - Check color proportions and usage hierarchy
-   
+   - IDENTIFY EVERY SINGLE COLOR in the design
+   - COMPARE to EXACT brand palette: ${brandGuidelines.primaryColors.join(', ')}
+   - Score: 100 ONLY if ALL colors are from brand palette, 0 if ANY non-brand color exists
+   - -50 points for each unauthorized color used
+   - -25 points for incorrect color proportions or hierarchy
+   - ZERO TOLERANCE: Any color not in brand palette = AUTOMATIC FAIL
+
 2. **Typography Scale (0-100)**:
-   - Identify fonts used (compare to ${brandGuidelines.typography?.primaryFont || 'brand fonts'})
-   - Evaluate font weight usage (should be ${brandGuidelines.typography?.fontWeights?.join(', ') || '400, 600, 700'})
-   - Check text hierarchy: clear size differences between headings/body?
-   - Assess readability and line spacing
-   - Score: -25 if wrong fonts, -15 if poor hierarchy
+   - Fonts MUST be: ${brandGuidelines.typography?.primaryFont || 'brand fonts ONLY'}
+   - Weights MUST be: ${brandGuidelines.typography?.fontWeights?.join(', ') || '400, 600, 700 ONLY'}
+   - Score: 0 if ANY wrong font or weight is used
+   - -40 points for wrong fonts, -30 for wrong weights
+   - -20 points for poor hierarchy or readability
+   - PERFECT EXECUTION REQUIRED: Any deviation = FAIL
 
 3. **Spacing Rhythm (0-100)**:
-   - Measure visual spacing between elements
-   - Check if spacing follows ${brandGuidelines.spacing?.baseUnit || '8px'} grid system
-   - Look for consistent margins and padding (${brandGuidelines.spacing?.scale || '1.5x'} scale)
-   - Identify spacing inconsistencies
-   - Score: -20 for inconsistent spacing, -15 for no clear system
+   - ALL spacing MUST follow ${brandGuidelines.spacing?.baseUnit || '8px'} EXACTLY
+   - Scale MUST be ${brandGuidelines.spacing?.scale || '1.5x'} PERFECTLY
+   - Score: 0 if ANY inconsistent spacing found
+   - -35 points for each spacing inconsistency
+   - -25 points for no clear mathematical system
+   - PIXEL-PERFECT COMPLIANCE REQUIRED
 
 4. **Accessibility (0-100)**:
-   - Check color contrast ratios (WCAG AA minimum: 4.5:1 for text)
-   - Evaluate text size (minimum 16px for body text)
-   - Check visual hierarchy for screen readers
-   - Assess clickable area sizes and spacing
-   - Score: -30 for poor contrast, -20 for small text
+   - CONTRAST: Minimum 4.5:1 for AA compliance (7:1 for AAA)
+   - TEXT SIZE: Minimum 16px body, 14px minimum absolute
+   - TOUCH TARGETS: Minimum 44px for mobile, 24px desktop
+   - Score: 0 for ANY accessibility violation
+   - -50 points for poor contrast, -40 for small text, -30 for inadequate touch targets
+   - WCAG COMPLIANCE IS MANDATORY
 
-5. **Layout Consistency**:
-   - Does layout follow ${brandGuidelines.layoutPatterns?.join(', ') || 'brand patterns'}?
-   - Check alignment and grid usage
-   - Evaluate visual balance and white space
+5. **Layout Consistency (CRITICAL)**:
+   - Layout MUST follow: ${brandGuidelines.layoutPatterns?.join(', ') || 'brand patterns EXACTLY'}
+   - Grid alignment must be PERFECT
+   - Visual balance and white space must be EXACT
+   - ANY deviation from brand layout = MAJOR PENALTY
 
-**SCORING GUIDELINES**:
-- 90-100: Exceptional - Perfectly matches brand, professional execution
-- 75-89: Good - Strong brand alignment, minor improvements needed
-- 60-74: Fair - Recognizable brand elements, needs refinement
-- 40-59: Poor - Weak brand alignment, significant issues
-- 0-39: Failing - Does not match brand, major problems
+**ULTRA-STRICT SCORING GUIDELINES** (NO MERCY):
+- 95-100: FLAWLESS - Perfect pixel-level brand compliance, professional masterpiece
+- 85-94: EXCELLENT - Minor imperfections only, still brand-compliant
+- 75-84: GOOD - Strong compliance but needs refinement
+- 60-74: POOR - Multiple issues, requires significant rework
+- 40-59: FAILING - Major brand violations, unacceptable
+- 0-39: COMPLETE FAILURE - Does not represent the brand, start over
 
-Be SPECIFIC in feedback: mention exact colors, spacing values, font issues you observe.
+**PENALTIES FOR VIOLATIONS**:
+- Wrong color: -50 points minimum
+- Wrong font: -40 points minimum
+- Inconsistent spacing: -35 points minimum
+- Poor accessibility: -50 points minimum
+- Layout violations: -45 points minimum
+- Multiple violations: COMPOUNDING penalties
 
-Return ONLY valid JSON (no markdown):
+Be BRUTALLY HONEST: List EVERY violation, no matter how small. Be SPECIFIC: mention exact hex codes, pixel measurements, font names, spacing values.
+
+Return ONLY valid JSON (no markdown, no explanations):
 {
   "score": overall_score_0_100,
   "colorConsistency": score_0_100,
   "typographyScale": score_0_100,
   "spacingRhythm": score_0_100,
   "accessibility": score_0_100,
-  "feedback": ["Specific observation 1", "Specific observation 2", "Specific observation 3"],
-  "recommendations": ["Actionable fix 1", "Actionable fix 2", "Actionable fix 3"]
+  "feedback": ["CRITICAL ISSUE: Specific violation details", "MAJOR ISSUE: Exact problem description", "MINOR ISSUE: Detailed observation"],
+  "recommendations": ["IMMEDIATE FIX: Actionable correction", "REQUIRED CHANGE: Specific improvement", "MANDATORY UPDATE: Compliance requirement"]
 }`;
 
       const contentParts: any[] = [
@@ -459,7 +474,7 @@ Return ONLY valid JSON (no markdown):
         messages: [
           {
             role: 'system',
-            content: 'You are a professional design auditor. Analyze designs objectively against brand guidelines. Return only valid JSON with specific, actionable feedback.'
+            content: 'You are an uncompromising professional design auditor conducting a BRAND COMPLIANCE AUDIT. Be EXTREMELY STRICT - ZERO TOLERANCE for brand violations. Analyze designs with military precision against brand guidelines. Return only valid JSON with BRUTALLY HONEST, specific, actionable feedback. NO EXCUSES ACCEPTED.'
           },
           {
             role: 'user',
