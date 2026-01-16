@@ -1,10 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-
-export interface BrandData {
-  primaryColors: string[];
-  brandVoice: string;
-  designGuidelines: string[];
-}
+import type { BrandData } from '../services/GroqClient';
 
 interface BrandContextType {
   brandData: BrandData;

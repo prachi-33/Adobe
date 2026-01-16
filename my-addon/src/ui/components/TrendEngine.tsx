@@ -27,7 +27,7 @@ const TrendEngine: React.FC = () => {
       const aiTrends = await groqClient.getViralTrends(hasBrandData ? brandData : undefined, language);
       setTrends(aiTrends);
     } catch (error) {
-      console.error('Error fetching trends:', error);
+      // Silently fallback to default trends
     } finally {
       setLoadingTrends(false);
     }
@@ -91,7 +91,6 @@ const TrendEngine: React.FC = () => {
       );
       setGeneratedPrompt(prompt);
     } catch (error) {
-      console.error('Error generating prompt:', error);
       alert('Failed to generate prompt. Please try again.');
     } finally {
       setGeneratingPrompt(false);
